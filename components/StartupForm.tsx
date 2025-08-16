@@ -1,24 +1,25 @@
-"use client";
+"use client"
 
-import React, { useState, useActionState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import MDEditor from "@uiw/react-md-editor";
-import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
-import { formSchema } from "@/lib/validation";
-import { z } from "zod";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import { createPitch } from "@/lib/actions";
+import React, { useState, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import MDEditor from "@uiw/react-md-editor"
+import { Button } from "@/components/ui/button"
+import { Send } from "lucide-react"
+import { formSchema } from "@/lib/validation"
+import { z } from "zod"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
+import { useFormState } from "react-dom"
+import { createPitch } from "@/lib/actions"
 
 const StartupForm = () => {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pitch, setPitch] = useState("");
-  const { toast } = useToast();
-  const router = useRouter();
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [pitch, setPitch] = useState("")
+  const { toast } = useToast()
+  const router = useRouter()
 
-  const handleFormSubmit = async (prevState: any, formData: FormData) => {
+  async function handleFormSubmit(prevState: any, formData: FormData) {
     try {
       const formValues = {
         title: formData.get("title") as string,
@@ -26,55 +27,40 @@ const StartupForm = () => {
         category: formData.get("category") as string,
         link: formData.get("link") as string,
         pitch,
-      };
-
-      await formSchema.parseAsync(formValues);
-
-      const result = await createPitch(prevState, formData, pitch);
-
-      if (result.status == "SUCCESS") {
-        toast({
-          title: "Success",
-          description: "Your startup pitch has been created successfully",
-        });
-
-        router.push(`/startup/${result._id}`);
       }
 
-      return result;
+      await formSchema.parseAsync(formValues)
+
+      const result = await createPitch(prevState, formData, pitch)
+
+      if (result.status === "SUCCESS") {
+        return { ...prevState, status: "SUCCESS", _id: result._id }
+      }
+
+      return { ...prevState, status: "ERROR", error: "DB insert failed" }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const fieldErorrs = error.flatten().fieldErrors;
-
-        setErrors(fieldErorrs as unknown as Record<string, string>);
-
-        toast({
-          title: "Error",
-          description: "Please check your inputs and try again",
-          variant: "destructive",
-        });
-
-        return { ...prevState, error: "Validation failed", status: "ERROR" };
+        setErrors(error.flatten().fieldErrors as unknown as Record<string, string>)
+        return { ...prevState, status: "ERROR", error: "Validation failed" }
       }
-
-      toast({
-        title: "Error",
-        description: "An unexpected error has occurred",
-        variant: "destructive",
-      });
-
-      return {
-        ...prevState,
-        error: "An unexpected error has occurred",
-        status: "ERROR",
-      };
+      return { ...prevState, status: "ERROR", error: "Unexpected error" }
     }
-  };
+  }
 
-  const [state, formAction, isPending] = useActionState(handleFormSubmit, {
+  const [state, formAction, isPending] = useFormState(handleFormSubmit, {
     error: "",
     status: "INITIAL",
-  });
+  })
+
+  useEffect(() => {
+    if (state.status === "SUCCESS" && state._id) {
+      toast({ title: "Success", description: "Pitch created successfully" })
+      router.push(`/startup/${state._id}`)
+    }
+    if (state.status === "ERROR") {
+      toast({ title: "Error", description: state.error, variant: "destructive" })
+    }
+  }, [state, toast, router])
 
   return (
     <form action={formAction} className="startup-form">
@@ -175,7 +161,7 @@ const StartupForm = () => {
         <Send className="size-6 ml-2" />
       </Button>
     </form>
-  );
-};
+  )
+}
 
-export default StartupForm;
+export default StartupForm

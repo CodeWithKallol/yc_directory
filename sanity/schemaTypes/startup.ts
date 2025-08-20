@@ -44,6 +44,13 @@ export const startup = defineType({
             name: 'pitch',
             type: 'markdown'
         }),
+        defineField({
+            name: "likes",
+            title: "Likes",
+            type: "number",
+            initialValue: 0,
+            validation: (Rule) => Rule.min(0),
+        }),
     ],
     
 })

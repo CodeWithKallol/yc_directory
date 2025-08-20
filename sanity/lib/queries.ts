@@ -29,6 +29,7 @@ export const STARTUP_BY_ID_QUERY =
   category,
   image,
   pitch,
+  likes
 }`);
 
 export const STARTUP_VIEWS_QUERY = defineQuery(`

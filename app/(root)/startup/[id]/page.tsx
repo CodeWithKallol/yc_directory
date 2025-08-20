@@ -9,6 +9,7 @@ import markdownit from "markdown-it";
 import { Skeleton } from '@/components/ui/skeleton';
 import View from '@/components/View';
 import StartupCard, { StartupTypeCard } from '@/components/StartupCard';
+import LikeButton from "@/components/LikeButton";   
 
 
 
@@ -58,7 +59,7 @@ const page = async ({params}: {params: Promise<{ id: string }>}) => {
 
                     <p className='category-tag'>{post.category}</p>
                 </div>
-
+                <LikeButton postId={post._id} initialLikes={post.likes || 0} />
                 <h3 className='text-30-bold'>Pitch Details</h3>
                 {parsedContent ? (
                     <article

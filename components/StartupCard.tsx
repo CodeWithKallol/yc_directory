@@ -1,5 +1,5 @@
 import { cn, formatDate } from "@/lib/utils"
-import { EyeIcon } from "lucide-react"
+import { EyeIcon, Heart } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "./ui/button"
@@ -9,7 +9,7 @@ import { Skeleton } from "./ui/skeleton"
 export type StartupTypeCard = Omit<Startup, "author"> & { author?: Author };
 
 const StartupCard = ({post}: {post: StartupTypeCard}) => {
-    const {_createdAt, _id, image, category, views, author, description, title} = post;
+    const {_createdAt, _id, image, category, views, author, description, title,likes} = post;
   return (
     <li className="startup-card group">
         <div className="flex-between">
@@ -19,7 +19,9 @@ const StartupCard = ({post}: {post: StartupTypeCard}) => {
 
             <div className="flex gap-1.5">
                 <EyeIcon className="size-6 text-primary"/>
-                <span className="text-16-medium">{views}</span>
+                <span className="text-16-medium gap-0.2">{views}</span>
+                <Heart className="size-6 text-red-500"/>
+                <span className="text-16-medium">{likes ?? 0}</span>
             </div>
         </div>
 

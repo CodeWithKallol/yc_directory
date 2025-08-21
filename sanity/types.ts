@@ -49,6 +49,7 @@ export type Startup = {
   category?: string;
   image?: string;
   pitch?: string;
+  likes?: number;
 };
 
 export type Author = {

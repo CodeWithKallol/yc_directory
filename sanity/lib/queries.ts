@@ -13,6 +13,7 @@ export const STARTUPS_QUERY =
   description,
   category,
   image,
+  likes
 }`);
 
 export const STARTUP_BY_ID_QUERY =
